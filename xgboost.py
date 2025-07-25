@@ -12,7 +12,6 @@ import wandb
 import kagglehub
 import itertools
 
-# ====== Paths and config ======
 DATA_DIR = kagglehub.dataset_download("gpiosenka/sports-classification")
 CACHE_DIR = "cache_feats"
 OUTPUT_DIR = "xgb_outputs"
@@ -22,7 +21,7 @@ N_FOLDS = 5
 os.makedirs(CACHE_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# ====== Hyperparameter grid (2^6 = 64 runs) ======
+# Hyperparameters we tried
 PARAM_GRID = {
     'learning_rate':    [0.01, 0.1],
     'n_estimators':     [50, 100],
@@ -32,12 +31,10 @@ PARAM_GRID = {
     'min_child_weight': [1, 5]
 }
 
-# ====== Logger helper ======
 _start = time.perf_counter()
 def log(msg):
     print(f"[{time.perf_counter() - _start:6.1f}s] {msg}")
 
-# ====== Feature extraction via ResNet18 ======
 def get_features(split="train"):
     path = os.path.join(CACHE_DIR, f"{split}_resnet18.npz")
     if os.path.exists(path):
@@ -65,9 +62,7 @@ def get_features(split="train"):
     dl = DataLoader(ds, batch_size=BATCH_SIZE, shuffle=False,
                     num_workers=2, pin_memory=True)
 
-    cnn = models.resnet18(
-        weights=models.ResNet18_Weights.IMAGENET1K_V1
-    ).to(device).eval()
+    cnn = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1).to(device).eval()
     feat_extractor = nn.Sequential(*list(cnn.children())[:-1])
 
     feats, labs = [], []
@@ -84,9 +79,7 @@ def get_features(split="train"):
     log(f"Cached {split} features {X.shape}")
     return X, y
 
-# ====== Evaluation function ======
 def evaluate_xgb(X_train, y_train, X_test, y_test, params, run_name):
-    # 1) Cross-validation (no early stopping)
     cv_clf = xgb.XGBClassifier(
         use_label_encoder=False,
         eval_metric="mlogloss",
@@ -100,7 +93,6 @@ def evaluate_xgb(X_train, y_train, X_test, y_test, params, run_name):
         n_jobs=-1
     )
 
-    # 2) Full fit with early stopping
     clf = xgb.XGBClassifier(
         use_label_encoder=False,
         eval_metric="mlogloss",
@@ -137,7 +129,6 @@ def evaluate_xgb(X_train, y_train, X_test, y_test, params, run_name):
     })
     return metrics
 
-# ====== Main ======
 def main():
     log("Starting XGBoost hyperparameter tuning")
     run = wandb.init(project="xgb-classification", name="xgb_hyperparam_tuning")
