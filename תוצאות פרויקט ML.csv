@@ -1,4 +1,4 @@
-הרצות של random forest,,,,,,,,,הרצות של KNN,,,,,,,,,,הרצות של CNN,,,,,,,,,,,,,הרצה של XGBOOST,run_name,accuracy,precision,recall,f1,,,,
+results random forest,,,,,,,,,results KNN,,,,,,,,,,results CNN,,,,,,,,,,,,,results XGBOOST,run_name,accuracy,precision,recall,f1,,,,
 run,accuracy,precision,recall,f1,,,,,run,raw_accuracy,raw_precision,raw_recall,raw_f1,feat_accuracy,feat_precision,feat_recall,feat_f1,,,model,accuracy,recall,precision,F1 score,,,,,,,,,xgb_lr0.01_n50_d3_sub0.8_col0.6_mcw1,0.658,0.69722977,0.658,0.65067144,,,,V
 RF_e50_dNone_l1_fsqrt,0.722,0.756075397,0.722,0.712168831,,,,,knn_1_uniform_euclidean,0.09707299,0.164906977,0.098203909,0.09527766,0.806,0.828414502,0.806,0.801877706,,,resnet18 not pretrained,85.4,,,,,,,,,,,,xgb_lr0.01_n50_d3_sub0.8_col0.6_mcw5,0.61,0.644632118,0.61,0.586641927,,,,
 RF_e100_dNone_l1_fsqrt,0.796,0.823722222,0.796,0.786169775,,,,,knn_1_distance_euclidean,0.09707299,0.164906977,0.098203909,0.09527766,0.806,0.828414502,0.806,0.801877706,,,resnet18 pretrained,97.6,97.6,98.0142,97.5097,,,,,,,,,xgb_lr0.01_n50_d3_sub0.8_col0.8_mcw1,0.63,0.671636364,0.63,0.6205796,,,,
