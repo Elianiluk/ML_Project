@@ -8,9 +8,9 @@ from torch.utils.data import DataLoader
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from sklearn.model_selection import cross_validate
 import xgboost as xgb
-import wandb
 import kagglehub
 import itertools
+import wandb as wandb
 
 DATA_DIR = kagglehub.dataset_download("gpiosenka/sports-classification")
 CACHE_DIR = "cache_feats"
@@ -21,7 +21,7 @@ N_FOLDS = 5
 os.makedirs(CACHE_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# Hyperparameters we tried
+# hyperparams we tried in our XGboost, explnation in our PDF file
 PARAM_GRID = {
     'learning_rate':    [0.01, 0.1],
     'n_estimators':     [50, 100],
@@ -35,6 +35,7 @@ _start = time.perf_counter()
 def log(msg):
     print(f"[{time.perf_counter() - _start:6.1f}s] {msg}")
 
+#Feature extraction
 def get_features(split="train"):
     path = os.path.join(CACHE_DIR, f"{split}_resnet18.npz")
     if os.path.exists(path):
@@ -61,8 +62,10 @@ def get_features(split="train"):
     ds = datasets.ImageFolder(os.path.join(DATA_DIR, split), transform=tf)
     dl = DataLoader(ds, batch_size=BATCH_SIZE, shuffle=False,
                     num_workers=2, pin_memory=True)
-
-    cnn = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1).to(device).eval()
+    # feature extraction
+    cnn = models.resnet18(
+        weights=models.ResNet18_Weights.IMAGENET1K_V1
+    ).to(device).eval()
     feat_extractor = nn.Sequential(*list(cnn.children())[:-1])
 
     feats, labs = [], []
@@ -130,7 +133,7 @@ def evaluate_xgb(X_train, y_train, X_test, y_test, params, run_name):
     return metrics
 
 def main():
-    log("Starting XGBoost hyperparameter tuning")
+    log("starting XGBoost hyperparameter to find the best model possible")
     run = wandb.init(project="xgb-classification", name="xgb_hyperparam_tuning")
 
     try:
